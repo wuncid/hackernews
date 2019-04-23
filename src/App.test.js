@@ -24,15 +24,17 @@ describe('App', () => {
 });
 
 describe('Search', () => {
+  const onChange = () => {};
+  const onSubmit = () => {};
   it('renders without crashing', () => {
     const div = document.createElement('div');
-    ReactDOM.render(<Search>Search</Search>, div);
+    ReactDOM.render(<Search onChange={onChange} onSubmit={onSubmit}>Search</Search>, div);
     ReactDOM.unmountComponentAtNode(div);
   });
 
   test('has a valid snapshot', () => {
     const component = renderer.create(
-      <Search>Search</Search>
+      <Search onChange={onChange} onSubmit={onSubmit}>Search</Search>
     );
     const tree = component.toJSON();
     expect(tree).toMatchSnapshot();
@@ -40,15 +42,16 @@ describe('Search', () => {
 });
 
 describe('Button', () => {
+  const onClick = () => {};
   it('renders without crashing', () => {
     const div = document.createElement('div');
-    ReactDOM.render(<Button>Give Me More</Button>, div);
+    ReactDOM.render(<Button onClick={onClick}>Give Me More</Button>, div);
     ReactDOM.unmountComponentAtNode(div);
   });
 
   test('has a valid snapshot', () => {
     const component = renderer.create(
-      <Button>Give Me More</Button>
+      <Button onClick={onClick}>Give Me More</Button>
     );
     const tree = component.toJSON();
     expect(tree).toMatchSnapshot();
@@ -56,7 +59,7 @@ describe('Button', () => {
 
   it('does stuff', () => {
     const element = shallow(
-      <Button>Give Me More</Button>
+      <Button onClick={onClick}>Give Me More</Button>
     );
     element.find('button').simulate('click');
     
