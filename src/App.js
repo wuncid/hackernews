@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import axios from 'axios';
 import './App.css';
 
 const DEFAULT_QUERY = 'redux';
@@ -11,6 +12,7 @@ const PARAM_PAGE = 'page=';
 const PARAM_HPP = 'hitsPerPage=';
 
 class App extends Component {
+  _isMounted = false;
 
   constructor(props) {
     super(props);
@@ -56,16 +58,21 @@ class App extends Component {
   }
 
   fetchSearchTopStories(searchTerm, page = 0) {
-    fetch(`${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${searchTerm}&${PARAM_PAGE}${page}&${PARAM_HPP}${DEFAULT_HPP}`)
-    .then(response => response.json())
-    .then(result => this.setSearchTopStories(result))
-    .catch(error => this.setState({ error }));
+    axios(`${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${searchTerm}&${PARAM_PAGE}${page}&${PARAM_HPP}${DEFAULT_HPP}`)
+    .then(result => this._isMounted && this.setSearchTopStories(result.data))
+    .catch(error => this._isMounted && this.setState({ error }));
   }
 
   componentDidMount() {
+    this._isMounted = true;
+
     const { searchTerm } = this.state;
     this.setState({ searchKey: searchTerm })
     this.fetchSearchTopStories(searchTerm);
+  }
+
+  componentWillUnmount() {
+    this._isMounted = false;
   }
 
   onSearchChange(event) {
@@ -163,7 +170,6 @@ const Search = ({ value, onChange, onSubmit, children }) => {
   )
 }
 
-
 const Table = ({ list, onDismiss }) => {
   const largeColumn = {
     width: '40%',
@@ -218,3 +224,9 @@ const Button = ({ onClick, className = '', children }) => {
 }
 
 export default App;
+
+export {
+  Button,
+  Search,
+  Table,
+};
