@@ -12,9 +12,6 @@ const PARAM_SEARCH = 'query=';
 const PARAM_PAGE = 'page=';
 const PARAM_HPP = 'hitsPerPage=';
 
-const Loading = () =>
-  <div>Loading ...</div>
-
 class App extends Component {
   _isMounted = false;
 
@@ -68,7 +65,7 @@ class App extends Component {
 
     axios(`${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${searchTerm}&${PARAM_PAGE}${page}&${PARAM_HPP}${DEFAULT_HPP}`)
     .then(result => this._isMounted && this.setSearchTopStories(result.data))
-    .catch(error => this._isMounted && this.setState({ error }));
+    .catch(error => this._isMounted && this.setState({ error, isLoading: false }));
   }
 
   componentDidMount() {
@@ -145,25 +142,21 @@ class App extends Component {
             Search
           </Search>
         </div>
-        { error
-          ? <div className="interactions">
-            <p>Something went wrong.</p>
-            </div>
-          : <Table 
-            list={list}
-            onDismiss={this.onDismiss}
-          />
-        }
-        <div className="interactions">
-          { isLoading
-            ? <Loading />
-            : <Button
-                onClick={() => this.fetchSearchTopStories(searchKey, page + 1)}
-              >
+        <TableWithError
+          error={error} 
+          list={list}
+          onDismiss={this.onDismiss}
+        />
+        { !error && ( 
+          <div className="interactions">
+            <ButtonWithLoading
+              isLoading={isLoading}
+              onClick={() => this.fetchSearchTopStories(searchKey, page + 1)}
+            >
               More
-            </Button>
-          }
-        </div>
+            </ButtonWithLoading>
+          </div>
+        )}
       </div>
     );
   }
@@ -248,6 +241,19 @@ const Table = ({ list, onDismiss }) => {
   );
 }
 
+const Error = () => (
+  <div className="interactions">
+    <p>Something went wrong.</p>
+  </div>
+);
+
+const withError = (Component) => ({ error, ...rest }) =>
+  error
+    ? <Error />
+    : <Component { ...rest } />
+
+const TableWithError = withError(Table); 
+
 Table.propTypes = {
   list: PropTypes.arrayOf(
     PropTypes.shape({
@@ -273,6 +279,16 @@ const Button = ({
   >
     {children}
   </button>
+
+const Loading = () =>
+  <div>Loading ...</div>
+
+const withLoading = (Component) => ({ isLoading, ...rest }) =>
+  isLoading
+    ? <Loading />
+    : <Component { ...rest } />
+
+const ButtonWithLoading = withLoading(Button);    
 
 Button.defaultProps = {
   className: '',
